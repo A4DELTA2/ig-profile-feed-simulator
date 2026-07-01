@@ -1,0 +1,1423 @@
+/* ==========================================================================
+   NEO-GLASS CREATIVE STUDIO - STYLESHEET
+   Project: Instagram Profile Simulator & iPhone 16 Pro Max Mockup
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. VARIABLES & DESIGN TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+  /* Studio Theme (Dark Neo-Glass) */
+  --studio-bg: radial-gradient(circle at 50% 50%, #1a233a 0%, #0d121f 100%);
+  --studio-panel-bg: rgba(22, 30, 49, 0.6);
+  --studio-glass-bg: rgba(255, 255, 255, 0.03);
+  --studio-glass-border: rgba(255, 255, 255, 0.08);
+  --studio-text-primary: #f3f4f6;
+  --studio-text-muted: #9ca3af;
+  --studio-accent: #6366f1;
+  --studio-accent-hover: #4f46e5;
+  --studio-danger: #ef4444;
+  --studio-success: #10b981;
+  
+  /* Instagram App Colors (Dynamic depending on mode) */
+  --ig-bg: #ffffff;
+  --ig-text: #000000;
+  --ig-text-muted: #737373;
+  --ig-border: #dbdbdb;
+  --ig-accent: #0095f6;
+  --ig-card-bg: #ffffff;
+  --ig-header-bg: rgba(255, 255, 255, 0.95);
+  --ig-nav-bg: #ffffff;
+  --ig-btn-bg: #efefef;
+  --ig-btn-text: #000000;
+  --ig-btn-hover: #dbdbdb;
+  
+  /* Fonts */
+  --font-studio: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-ig: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Instagram App Dark Mode Overrides */
+.ig-dark-mode {
+  --ig-bg: #000000;
+  --ig-text: #f5f5f5;
+  --ig-text-muted: #a8a8a8;
+  --ig-border: #262626;
+  --ig-accent: #0095f6;
+  --ig-card-bg: #000000;
+  --ig-header-bg: rgba(0, 0, 0, 0.95);
+  --ig-nav-bg: #000000;
+  --ig-btn-bg: #262626;
+  --ig-btn-text: #ffffff;
+  --ig-btn-hover: #363636;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET & GLOBAL STYLES
+   -------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-studio);
+  background: var(--studio-bg);
+  color: var(--studio-text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbars for Studio Panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   3. STUDIO GRID LAYOUT
+   -------------------------------------------------------------------------- */
+.studio-header {
+  height: 70px;
+  background: rgba(13, 18, 31, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--studio-glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  z-index: 100;
+}
+
+.studio-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.studio-title h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff 0%, var(--studio-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.studio-badge {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(220, 39, 67, 0.3);
+}
+
+.studio-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr 340px;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+  .studio-main {
+    grid-template-columns: 350px 1fr;
+  }
+  .studio-sidebar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .studio-main {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    height: auto;
+  }
+  .studio-sidebar-left {
+    height: auto;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--studio-glass-border);
+  }
+}
+
+/* Sidebars layout */
+.studio-sidebar {
+  background: var(--studio-panel-bg);
+  border-right: 1px solid var(--studio-glass-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.studio-sidebar-right {
+  border-right: none;
+  border-left: 1px solid var(--studio-glass-border);
+}
+
+.section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--studio-text-muted);
+  margin-bottom: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-card {
+  background: var(--studio-glass-bg);
+  border: 1px solid var(--studio-glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s;
+}
+
+.panel-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   4. IMAGE UPLOADER & FORM INPUTS
+   -------------------------------------------------------------------------- */
+.upload-zone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 24px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--studio-accent);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.upload-zone input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-icon {
+  font-size: 24px;
+  color: var(--studio-text-muted);
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 0.85rem;
+  color: var(--studio-text-primary);
+  margin-bottom: 4px;
+}
+
+.upload-sub {
+  font-size: 0.75rem;
+  color: var(--studio-text-muted);
+}
+
+.uploaded-images-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.preview-thumb {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--studio-glass-border);
+}
+
+.preview-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-thumb .remove-img {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.preview-thumb .remove-img:hover {
+  background: var(--studio-danger);
+}
+
+.preview-thumb .img-index {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  background: rgba(99, 102, 241, 0.85);
+  color: white;
+  font-size: 9px;
+  padding: 0px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--studio-text-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--studio-glass-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: white;
+  font-family: var(--font-studio);
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--studio-accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+textarea.form-input {
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* User profile avatar selector */
+.avatar-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-preview-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--studio-accent);
+  background: #111;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.avatar-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview-container::after {
+  content: 'Edit';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 8px;
+  text-align: center;
+  padding: 1px 0;
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--studio-accent) 0%, var(--studio-accent-hover) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: var(--font-studio);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-secondary {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--studio-text-primary);
+  border: 1px solid var(--studio-glass-border);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: var(--font-studio);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   5. DEVICE STAGE & IPHONE 16 PRO MAX FRAME
+   -------------------------------------------------------------------------- */
+.stage-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  perspective: 1200px;
+}
+
+.phone-perspective-wrapper {
+  position: relative;
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.iphone-frame {
+  position: relative;
+  width: 410px;
+  height: 850px;
+  background: #121316;
+  border-radius: 54px;
+  padding: 10px; /* Thin bezel */
+  box-shadow: 
+    0px 25px 60px -15px rgba(0, 0, 0, 0.8),
+    0px 0px 0px 4px #2b2e36, 
+    0px 0px 0px 8px #1c1e22;
+  transform-style: preserve-3d;
+}
+
+.iphone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 43px;
+  overflow: hidden;
+  background: var(--ig-bg);
+  display: flex;
+  flex-direction: column;
+  color: var(--ig-text);
+  font-family: var(--font-ig);
+  user-select: none;
+}
+
+.phone-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.03) 30%, 
+    rgba(255, 255, 255, 0) 50%, 
+    rgba(255, 255, 255, 0) 100-percent
+  );
+  pointer-events: none;
+  z-index: 99;
+  border-radius: 43px;
+}
+
+/* Side buttons */
+.phone-btn {
+  position: absolute;
+  width: 3px;
+  background: #2b2e36;
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.btn-action { top: 155px; left: -3px; height: 26px; }
+.btn-vol-up { top: 200px; left: -3px; height: 50px; }
+.btn-vol-down { top: 265px; left: -3px; height: 50px; }
+.btn-power { top: 190px; right: -3px; height: 60px; }
+.btn-camera-control { top: 460px; right: -3px; height: 46px; width: 4px; background: #3e4149; }
+
+/* Dynamic Island */
+.dynamic-island-container {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dynamic-island {
+  width: 95px;
+  height: 26px;
+  background: #000000;
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: white;
+  font-size: 10px;
+  overflow: hidden;
+}
+
+.dynamic-island.expanded {
+  width: 250px;
+  height: 36px;
+  border-radius: 22px;
+  padding: 0 14px;
+}
+
+.dynamic-island-content {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dynamic-island.expanded .dynamic-island-content {
+  display: flex;
+}
+
+.island-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.island-pulse {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+/* Status Bar */
+.ios-status-bar {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 28px 6px 28px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--ig-text);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.ios-time { letter-spacing: -0.2px; }
+.ios-icons { display: flex; align-items: center; gap: 5px; }
+.ios-icons svg { width: 14px; height: 14px; fill: currentColor; }
+
+.ios-home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: var(--ig-text);
+  opacity: 0.6;
+  border-radius: 10px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. INSTAGRAM PROFILE SCREEN SPECIFIC
+   -------------------------------------------------------------------------- */
+.ig-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: var(--ig-bg);
+  overflow: hidden;
+}
+
+/* Header bar */
+.ig-profile-header-bar {
+  height: 44px;
+  border-bottom: 1px solid var(--ig-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: var(--ig-header-bg);
+  backdrop-filter: blur(20px);
+  z-index: 90;
+  flex-shrink: 0;
+}
+
+.header-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.header-bar-left svg {
+  cursor: pointer;
+}
+
+.header-username {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.header-bar-right svg {
+  cursor: pointer;
+  stroke: var(--ig-text);
+}
+
+/* Scroll Area containing bio, highlights, grid */
+.ig-profile-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: 48px; /* space for nav indicator */
+}
+
+.ig-profile-scroll-area::-webkit-scrollbar {
+  display: none;
+}
+
+/* Bio header layout */
+.ig-profile-meta-block {
+  padding: 12px 16px;
+}
+
+.meta-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.meta-avatar-wrapper {
+  width: 77px;
+  height: 77px;
+  border-radius: 50%;
+  padding: 3px;
+  border: 1px solid var(--ig-border);
+  display: flex;
+}
+
+.profile-main-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.meta-stats-columns {
+  display: flex;
+  gap: 22px;
+  margin-right: 10px;
+}
+
+.stat-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ig-text);
+}
+
+.stat-lbl {
+  font-size: 11px;
+  color: var(--ig-text-muted);
+}
+
+/* Bio textual info */
+.meta-bio-container {
+  font-size: 12.5px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.profile-display-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ig-text);
+  margin-bottom: 2px;
+}
+
+.profile-category-tag {
+  color: var(--ig-text-muted);
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11.5px;
+}
+
+.profile-bio-text {
+  color: var(--ig-text);
+  white-space: pre-line;
+}
+
+.profile-bio-link {
+  color: #00376b;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.ig-dark-mode .profile-bio-link {
+  color: #e0f1ff;
+}
+
+/* Interaction buttons under bio */
+.profile-buttons-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.profile-btn-action {
+  flex: 1;
+  height: 32px;
+  background: var(--ig-btn-bg);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-ig);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ig-btn-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.profile-btn-action:hover {
+  background: var(--ig-btn-hover);
+}
+
+.profile-btn-action-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--ig-btn-bg);
+  border: none;
+  border-radius: 8px;
+  color: var(--ig-btn-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-btn-action-icon:hover {
+  background: var(--ig-btn-hover);
+}
+
+/* Highlights horizontal list */
+.profile-highlights-tray {
+  display: flex;
+  gap: 12px;
+  padding: 4px 16px 12px 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ig-border);
+}
+
+.profile-highlights-tray::-webkit-scrollbar {
+  display: none;
+}
+
+.highlight-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 58px;
+}
+
+.highlight-ring {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  padding: 2.5px;
+  border: 1px solid var(--ig-border);
+  display: flex;
+}
+
+.highlight-ring.empty {
+  border: 1px dashed var(--ig-border);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.highlight-pic-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.highlight-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.highlight-lbl {
+  font-size: 10px;
+  color: var(--ig-text);
+  max-width: 58px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+/* Grid Tabs */
+.profile-tabs-bar {
+  display: flex;
+  height: 44px;
+  border-bottom: 1px solid var(--ig-border);
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ig-text-muted);
+  position: relative;
+}
+
+.tab-item.active {
+  color: var(--ig-text);
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--ig-text);
+}
+
+.tab-item svg {
+  stroke: currentColor;
+}
+
+/* 3-Column Profile grid */
+.ig-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5px;
+  padding: 0px;
+  background: var(--ig-bg);
+}
+
+.grid-cell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5; /* 4:5 portrait ratio to prevent cropping */
+  background: #111;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+}
+
+.grid-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s;
+}
+
+.grid-cell:hover img {
+  opacity: 0.85;
+}
+
+/* Multi-photo overlapping sheets grid icon indicator */
+.grid-carousel-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  padding: 3.5px;
+  border-radius: 4px;
+  display: flex;
+  color: white;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.grid-carousel-badge svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. SLIDE-UP DETAIL MODAL OVERLAY
+   -------------------------------------------------------------------------- */
+.ig-post-detail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--ig-bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.ig-post-detail-overlay.active {
+  transform: translateY(0);
+}
+
+.overlay-header {
+  height: 48px;
+  border-bottom: 1px solid var(--ig-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: var(--ig-header-bg);
+  flex-shrink: 0;
+  color: var(--ig-text);
+}
+
+.btn-close-overlay {
+  background: transparent;
+  border: none;
+  color: var(--ig-text);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+}
+
+.overlay-title {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.overlay-post-body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: 30px;
+}
+
+.overlay-post-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   8. INDIVIDUAL POST / CAROUSEL STYLING (Inside overlay)
+   -------------------------------------------------------------------------- */
+.ig-post {
+  display: flex;
+  flex-direction: column;
+  background: var(--ig-bg);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.post-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--ig-border);
+}
+
+.post-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-username {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ig-text);
+}
+
+.post-location {
+  font-size: 10.5px;
+  color: var(--ig-text-muted);
+}
+
+.post-options {
+  cursor: pointer;
+}
+
+.post-media-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5; /* 4:5 portrait aspect ratio */
+  overflow: hidden;
+  background: #000;
+}
+
+.post-media-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.post-media-item {
+  min-width: 100%;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.post-media-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-media-container.draggable { cursor: grab; }
+.post-media-container.draggable:active { cursor: grabbing; }
+
+/* Carousel Indicators */
+.media-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.post-media-container:hover .media-nav-btn { opacity: 1; }
+.media-nav-btn.nav-prev { left: 10px; }
+.media-nav-btn.nav-next { right: 10px; }
+.media-nav-btn svg { width: 12px; height: 12px; stroke: #1f2937; stroke-width: 2.5; fill: none; }
+
+.post-carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.post-carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.post-carousel-dot.active {
+  background: var(--studio-accent);
+  transform: scale(1.2);
+}
+
+/* Heart animations */
+.double-tap-heart {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 80px;
+  height: 80px;
+  fill: #ffffff;
+  pointer-events: none;
+  z-index: 20;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}
+
+.double-tap-heart.animate {
+  animation: tapHeart 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes tapHeart {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+  30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* Post Actions (Buttons under image) */
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px 14px;
+}
+
+.post-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.post-actions-left svg, .post-actions-right svg {
+  width: 23px;
+  height: 23px;
+  stroke: var(--ig-text);
+  stroke-width: 2;
+  fill: none;
+  cursor: pointer;
+}
+
+.post-actions-left svg.liked {
+  stroke: #ff3040;
+  fill: #ff3040;
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.post-details {
+  padding: 0 14px 12px 14px;
+  font-size: 12.5px;
+}
+
+.post-likes {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ig-text);
+}
+
+.post-caption-wrapper {
+  line-height: 1.4;
+}
+
+.post-caption-user {
+  font-weight: 600;
+  margin-right: 5px;
+  color: var(--ig-text);
+}
+
+.post-caption-text {
+  color: var(--ig-text);
+}
+
+.post-comments-link {
+  color: var(--ig-text-muted);
+  margin-top: 4px;
+  cursor: pointer;
+  font-size: 11.5px;
+}
+
+.post-time {
+  font-size: 9.5px;
+  color: var(--ig-text-muted);
+  text-transform: uppercase;
+  margin-top: 5px;
+  letter-spacing: 0.2px;
+}
+
+/* Bottom App Nav Bar */
+.ig-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  border-top: 1px solid var(--ig-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: 10px;
+  background: var(--ig-nav-bg);
+  z-index: 100;
+}
+
+.ig-bottom-nav svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ig-text);
+  stroke-width: 2;
+  fill: none;
+  cursor: pointer;
+}
+
+.ig-bottom-nav .nav-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--ig-text);
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   9. OPTIONS & CONTROLS (RIGHT PANEL)
+   -------------------------------------------------------------------------- */
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.option-label {
+  font-size: 0.85rem;
+  color: var(--studio-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Toggle Switch Styles */
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.switch-control input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: .3s;
+  border-radius: 34px;
+  border: 1px solid var(--studio-glass-border);
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .switch-slider {
+  background-color: var(--studio-accent);
+}
+
+input:checked + .switch-slider:before {
+  transform: translateX(22px);
+}
+
+/* Feed Management List */
+.feed-management-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.manage-post-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--studio-glass-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.manage-post-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--studio-glass-border);
+}
+
+.manage-post-info {
+  flex: 1;
+  margin-left: 10px;
+  overflow: hidden;
+}
+
+.manage-post-caption {
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--studio-text-primary);
+}
+
+.manage-post-type {
+  font-size: 0.7rem;
+  color: var(--studio-text-muted);
+}
+
+.btn-icon-delete {
+  background: transparent;
+  border: none;
+  color: var(--studio-text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+}
+
+.btn-icon-delete:hover {
+  color: var(--studio-danger);
+}
+
+.empty-feed-text {
+  font-size: 0.8rem;
+  color: var(--studio-text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Tips */
+.tips-container {
+  font-size: 0.75rem;
+  color: var(--studio-text-muted);
+  line-height: 1.5;
+}
+
+.tips-container ul {
+  padding-left: 16px;
+  margin-top: 6px;
+}
+
+.tips-container li {
+  margin-bottom: 4px;
+}
