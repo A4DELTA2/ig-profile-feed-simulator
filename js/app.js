@@ -16,6 +16,7 @@ import {
 } from './storage.js';
 import { slugify, serializeProject, parseProjectJson, validateImportedProjectData, downloadTextFile } from './project-io.js';
 import { exportElementAsImage } from './image-export.js';
+import { reorderArray, initDragReorder } from './reorder.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- STATE ---
@@ -102,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGrid();
   renderManageList();
   renderProjectSelector();
+  initDragReorder(manageList, handlePostReorder);
 
   // --- FUNCTIONS ---
 
@@ -898,6 +900,8 @@ document.addEventListener('DOMContentLoaded', () => {
     posts.forEach((post) => {
       const item = document.createElement('div');
       item.className = 'manage-post-item';
+      item.setAttribute('draggable', 'true');
+      item.setAttribute('data-drag-id', post.id);
       item.innerHTML = `
         <img class="manage-post-thumb" src="${post.images[0]}" alt="">
         <div class="manage-post-info">
@@ -921,6 +925,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       manageList.appendChild(item);
     });
+  }
+
+  function handlePostReorder(draggedId, targetId) {
+    const fromIndex = posts.findIndex((p) => p.id === draggedId);
+    const toIndex = posts.findIndex((p) => p.id === targetId);
+    if (fromIndex === -1 || toIndex === -1) return;
+    posts = reorderArray(posts, fromIndex, toIndex);
+    saveData();
+    renderGrid();
+    renderManageList();
   }
 
   function deletePost(id) {

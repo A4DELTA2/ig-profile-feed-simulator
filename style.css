@@ -1394,6 +1394,11 @@ input:checked + .switch-slider:before {
   border: 1px solid var(--studio-glass-border);
   border-radius: 8px;
   padding: 8px 12px;
+  cursor: grab;
+}
+
+.manage-post-item.dragging {
+  opacity: 0.4;
 }
 
 .manage-post-thumb {
