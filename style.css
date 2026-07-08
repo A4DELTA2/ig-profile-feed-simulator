@@ -420,6 +420,44 @@ textarea.form-input {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Project Selector */
+.project-selector-row {
+  margin-bottom: 10px;
+}
+
+.project-select {
+  cursor: pointer;
+}
+
+.project-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.project-icon-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--studio-glass-border);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--studio-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.project-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.project-icon-btn-danger:hover {
+  color: var(--studio-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
 /* --------------------------------------------------------------------------
    5. DEVICE STAGE & IPHONE 16 PRO MAX FRAME
    -------------------------------------------------------------------------- */

@@ -6,6 +6,9 @@
 import {
   createBlankProfile,
   createProject,
+  renameProject,
+  duplicateProject,
+  deleteProject,
   findProject,
   updateProjectData,
   initializeProjects,
@@ -77,6 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const iosStatusBar = document.querySelector('.ios-status-bar');
   const igAppContainer = document.querySelector('.ig-app');
 
+  const projectSelect = document.getElementById('project-select');
+  const btnProjectNew = document.getElementById('btn-project-new');
+  const btnProjectRename = document.getElementById('btn-project-rename');
+  const btnProjectDuplicate = document.getElementById('btn-project-duplicate');
+  const btnProjectDelete = document.getElementById('btn-project-delete');
+
   // --- INITIALIZATION ---
   initClock();
   loadData();
@@ -85,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProfileMockup();
   renderGrid();
   renderManageList();
+  renderProjectSelector();
 
   // --- FUNCTIONS ---
 
@@ -178,6 +188,78 @@ document.addEventListener('DOMContentLoaded', () => {
     profile = project.profile;
     posts = project.posts;
     userAvatar = project.avatar || getPlaceholderAvatar();
+  }
+
+  function renderProjectSelector() {
+    projectSelect.innerHTML = '';
+    projects.forEach((project) => {
+      const option = document.createElement('option');
+      option.value = project.id;
+      option.textContent = project.name;
+      option.selected = project.id === activeProjectId;
+      projectSelect.appendChild(option);
+    });
+  }
+
+  function switchProject(newProjectId) {
+    if (newProjectId === activeProjectId) return;
+    activeProjectId = newProjectId;
+    saveProjectsToStorage(localStorage, projects, activeProjectId);
+    loadActiveProjectIntoState();
+    syncSidebarToProfileForm();
+    updateProfileMockup();
+    renderGrid();
+    renderManageList();
+    renderProjectSelector();
+  }
+
+  function createNewProject() {
+    const name = prompt('New project name:', '');
+    if (!name || !name.trim()) return;
+    const project = createProject(name.trim(), createBlankProfile(), [], getPlaceholderAvatar());
+    projects = [...projects, project];
+    switchProject(project.id);
+  }
+
+  function renameActiveProject() {
+    const current = findProject(projects, activeProjectId);
+    const name = prompt('Rename project:', current.name);
+    if (!name || !name.trim()) return;
+    projects = renameProject(projects, activeProjectId, name.trim());
+    saveProjectsToStorage(localStorage, projects, activeProjectId);
+    renderProjectSelector();
+  }
+
+  function duplicateActiveProject() {
+    const current = findProject(projects, activeProjectId);
+    const copy = createProject(
+      `${current.name} (copy)`,
+      JSON.parse(JSON.stringify(current.profile)),
+      JSON.parse(JSON.stringify(current.posts)),
+      current.avatar
+    );
+    projects = duplicateProject(projects, activeProjectId, copy);
+    switchProject(copy.id);
+  }
+
+  function deleteActiveProject() {
+    if (!confirm('Delete this project? This cannot be undone.')) return;
+    const remaining = deleteProject(projects, activeProjectId);
+    if (remaining.length === 0) {
+      const fresh = createProject('New project', createBlankProfile(), [], getPlaceholderAvatar());
+      projects = [fresh];
+      activeProjectId = fresh.id;
+    } else {
+      projects = remaining;
+      activeProjectId = remaining[0].id;
+    }
+    saveProjectsToStorage(localStorage, projects, activeProjectId);
+    loadActiveProjectIntoState();
+    syncSidebarToProfileForm();
+    updateProfileMockup();
+    renderGrid();
+    renderManageList();
+    renderProjectSelector();
   }
 
   function saveData() {
@@ -366,6 +448,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderManageList();
       }
     });
+
+    // --- 5. Project management ---
+    projectSelect.addEventListener('change', (e) => {
+      switchProject(e.target.value);
+    });
+
+    btnProjectNew.addEventListener('click', createNewProject);
+    btnProjectRename.addEventListener('click', renameActiveProject);
+    btnProjectDuplicate.addEventListener('click', duplicateActiveProject);
+    btnProjectDelete.addEventListener('click', deleteActiveProject);
   }
 
   // Handle uploaded photo files with async compression
