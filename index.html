@@ -492,6 +492,29 @@
         </button>
       </section>
 
+      <!-- Export / Import Panel -->
+      <section class="panel-card">
+        <h2 class="section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export / Import
+        </h2>
+        <button class="btn-primary" id="btn-export-image">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          Export as Image
+        </button>
+        <button class="btn-secondary" id="btn-export-json">Export Project (JSON)</button>
+        <button class="btn-secondary" id="btn-import-json">Import Project (JSON)</button>
+        <input type="file" id="import-json-input" accept="application/json" style="display: none;">
+      </section>
+
       <!-- Interactive Instructions Tips -->
       <section class="panel-card">
         <h2 class="section-title" style="color: var(--studio-success);">
@@ -516,6 +539,9 @@
     </aside>
 
   </main>
+
+  <!-- html2canvas (image export) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- JS Code execution -->
   <script src="js/app.js" type="module"></script>

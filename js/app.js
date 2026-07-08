@@ -14,6 +14,8 @@ import {
   initializeProjects,
   saveProjectsToStorage
 } from './storage.js';
+import { slugify, serializeProject, parseProjectJson, validateImportedProjectData, downloadTextFile } from './project-io.js';
+import { exportElementAsImage } from './image-export.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- STATE ---
@@ -85,6 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnProjectRename = document.getElementById('btn-project-rename');
   const btnProjectDuplicate = document.getElementById('btn-project-duplicate');
   const btnProjectDelete = document.getElementById('btn-project-delete');
+
+  const btnExportImage = document.getElementById('btn-export-image');
+  const btnExportJson = document.getElementById('btn-export-json');
+  const btnImportJson = document.getElementById('btn-import-json');
+  const importJsonInput = document.getElementById('import-json-input');
 
   // --- INITIALIZATION ---
   initClock();
@@ -458,6 +465,67 @@ document.addEventListener('DOMContentLoaded', () => {
     btnProjectRename.addEventListener('click', renameActiveProject);
     btnProjectDuplicate.addEventListener('click', duplicateActiveProject);
     btnProjectDelete.addEventListener('click', deleteActiveProject);
+
+    // --- 6. Export / Import ---
+    btnExportImage.addEventListener('click', async () => {
+      const project = findProject(projects, activeProjectId);
+      try {
+        await exportElementAsImage(iphoneFrame, `${slugify(project.name)}-mockup.png`);
+      } catch (err) {
+        console.error('Error exporting image:', err);
+        alert('Image export failed. Please try again.');
+      }
+    });
+
+    btnExportJson.addEventListener('click', () => {
+      const project = findProject(projects, activeProjectId);
+      const json = serializeProject(project);
+      downloadTextFile(`${slugify(project.name)}.json`, json, 'application/json');
+    });
+
+    btnImportJson.addEventListener('click', () => {
+      importJsonInput.click();
+    });
+
+    importJsonInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = parseProjectJson(text);
+        if (!validateImportedProjectData(data)) {
+          alert('The selected file is not a valid project.');
+          return;
+        }
+        const overwrite = confirm(
+          'Overwrite the active project with this import? Click Cancel to create it as a new project instead.'
+        );
+        if (overwrite) {
+          profile = data.profile;
+          posts = data.posts;
+          userAvatar = data.avatar || getPlaceholderAvatar();
+          saveData();
+          syncSidebarToProfileForm();
+          updateProfileMockup();
+          renderGrid();
+          renderManageList();
+        } else {
+          const project = createProject(
+            data.name || 'Imported project',
+            data.profile,
+            data.posts,
+            data.avatar || getPlaceholderAvatar()
+          );
+          projects = [...projects, project];
+          switchProject(project.id);
+        }
+      } catch (err) {
+        console.error('Error importing project:', err);
+        alert('Could not read the selected file.');
+      } finally {
+        importJsonInput.value = '';
+      }
+    });
   }
 
   // Handle uploaded photo files with async compression
