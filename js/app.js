@@ -3,22 +3,24 @@
    Project: Instagram Profile Simulator & iPhone 16 Pro Max Mockup
    ========================================================================== */
 
+import {
+  createBlankProfile,
+  createProject,
+  findProject,
+  updateProjectData,
+  initializeProjects,
+  saveProjectsToStorage
+} from './storage.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- STATE ---
+  let projects = [];
+  let activeProjectId = null;
   let posts = [];
   let currentPostImages = []; // Stores base64 strings of uploaded photos for new post
   let userAvatar = getPlaceholderAvatar(); // Base64 of default avatar
-  
-  let profile = {
-    username: 'lasertech_schio',
-    displayName: 'LASER TECH SCHIO',
-    category: 'Impresa industriale',
-    bioText: `Laser Tech Schio è leader nel taglio laser e lavorazione lamiera su specifica del cliente.\n#acciaioinox`,
-    bioLink: 'www.lasertech-srl.it/',
-    followersCount: '293',
-    followingCount: '316'
-  };
-  
+  let profile = createBlankProfile();
+
   // --- DOM ELEMENTS ---
   // Profile settings
   const inputUsername = document.getElementById('post-username');
@@ -30,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputFollowing = document.getElementById('post-following-count');
   const avatarUploadInput = document.getElementById('avatar-upload');
   const avatarPreview = document.getElementById('avatar-preview-img');
-  
+
   // Mockup elements to update
   const lblHeaderUsername = document.getElementById('header-profile-username');
   const lblDisplayName = document.getElementById('lbl-display-name');
@@ -42,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lblStatFollowing = document.getElementById('stat-following-val');
   const imgMainAvatar = document.getElementById('profile-main-avatar-img');
   const imgNavAvatar = document.getElementById('nav-avatar-preview');
-  
+
   // Post Creator Form
   const uploadInput = document.getElementById('post-photos-upload');
   const uploadZone = document.getElementById('upload-zone');
@@ -50,13 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const captionInput = document.getElementById('post-caption');
   const locationInput = document.getElementById('post-location');
   const addPostBtn = document.getElementById('btn-add-post');
-  
+
   // Layout containers
   const igProfileGrid = document.getElementById('ig-profile-grid');
   const phonePerspectiveWrapper = document.getElementById('phone-perspective-wrapper');
   const stageContainer = document.querySelector('.stage-container');
   const dynamicIsland = document.getElementById('dynamic-island');
-  
+  const iphoneFrame = document.getElementById('iphone-frame');
+
   // Slide-up Detail Overlay Modal
   const postOverlay = document.getElementById('ig-post-detail-overlay');
   const overlayPostBody = document.getElementById('overlay-post-body');
@@ -69,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleDarkMode = document.getElementById('toggle-dark');
   const clearFeedBtn = document.getElementById('btn-clear-feed');
   const manageList = document.getElementById('manage-list');
-  
+
   const iosTimeEl = document.querySelector('.ios-time');
   const iosStatusBar = document.querySelector('.ios-status-bar');
   const igAppContainer = document.querySelector('.ig-app');
@@ -120,10 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
     lblHeaderUsername.textContent = profile.username;
     lblDisplayName.textContent = profile.displayName;
     lblCategory.textContent = profile.category;
-    
+
     // Formatting newlines in Bio
     lblBioText.innerHTML = escapeHtml(profile.bioText).replace(/\n/g, '<br>');
-    
+
     // Handle link
     lblBioLink.innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 2px; flex-shrink: 0;">
@@ -133,42 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
       ${escapeHtml(profile.bioLink)}
     `;
     lblBioLink.href = profile.bioLink.startsWith('http') ? profile.bioLink : 'https://' + profile.bioLink;
-    
+
     lblStatPosts.textContent = posts.length;
     lblStatFollowers.textContent = profile.followersCount;
     lblStatFollowing.textContent = profile.followingCount;
-    
+
     imgMainAvatar.src = userAvatar;
     imgNavAvatar.src = userAvatar;
-  }
-
-  // Generate beautiful custom gradient SVGs with title and subtitle
-  function createGradientPlaceholder(title, subtitle, color1, color2, isDark = false) {
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
-        <defs>
-          <linearGradient id="grad-${title.replace(/[^a-zA-Z]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <rect width="600" height="600" fill="url(#grad-${title.replace(/[^a-zA-Z]/g, '')})" />
-        <rect x="30" y="30" width="540" height="540" rx="12" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2" />
-        
-        <!-- Steel pattern graphic lines -->
-        <circle cx="300" cy="300" r="180" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8" />
-        <line x1="120" y1="120" x2="480" y2="480" stroke="rgba(255,255,255,0.04)" stroke-width="4" />
-        <line x1="480" y1="120" x2="120" y2="480" stroke="rgba(255,255,255,0.04)" stroke-width="4" />
-
-        <!-- Text Elements -->
-        <text x="300" y="270" font-family="'Outfit', sans-serif" font-weight="700" font-size="34" fill="#ffffff" text-anchor="middle" letter-spacing="1">${title}</text>
-        <text x="300" y="330" font-family="'Outfit', sans-serif" font-weight="500" font-size="16" fill="rgba(255,255,255,0.75)" text-anchor="middle">${subtitle}</text>
-        
-        <!-- Laser pointer dot graphic -->
-        <circle cx="300" cy="180" r="8" fill="#ff3040" filter="drop-shadow(0 0 8px #ff3040)" opacity="0.8"/>
-      </svg>
-    `;
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg.trim());
   }
 
   // Default User Avatar SVG (Company logo silhouette)
@@ -191,109 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg.trim());
   }
 
-  // Load state from local storage or pre-populate with screenshot match templates
+  // Load the active project's data from the multi-project store
   function loadData() {
-    const savedPosts = localStorage.getItem('ig_profile_posts');
-    const savedAvatar = localStorage.getItem('ig_profile_avatar');
-    const savedProfile = localStorage.getItem('ig_profile_info');
-    
-    if (savedAvatar) {
-      userAvatar = savedAvatar;
-    }
-    
-    if (savedProfile) {
-      try {
-        profile = JSON.parse(savedProfile);
-      } catch (e) {}
-    }
-    
-    if (savedPosts) {
-      try {
-        posts = JSON.parse(savedPosts);
-      } catch (e) {
-        posts = [];
-      }
-    }
-    
-    // Seed screenshot defaults if empty
-    if (posts.length === 0) {
-      posts = [
-        {
-          id: 'post-1',
-          username: 'lasertech_schio',
-          userAvatar: getPlaceholderAvatar(),
-          location: 'Schio, Italy',
-          images: [
-            createGradientPlaceholder('FARE IMPRESA', 'Crescere insieme ai propri clienti. - Aldo', '#dc2743', '#833ab4'),
-            createGradientPlaceholder('IL FUTURO', 'Progettazione e automazione industriale', '#f5af19', '#f12711')
-          ],
-          caption: 'Fare Impresa vuol dire crescere insieme ai propri clienti. Aldo #lasertech #laser #lavorazionelamiera #lasercutting',
-          likes: 97,
-          likedByMe: false,
-          timeAgo: '1 DAY AGO'
-        },
-        {
-          id: 'post-2',
-          username: 'lasertech_schio',
-          userAvatar: getPlaceholderAvatar(),
-          location: 'Vibe Lab',
-          images: [
-            createGradientPlaceholder('TECNOLOGIA', 'La tecnologia evolve. I valori restano.', '#2c3e50', '#000000')
-          ],
-          caption: 'La tecnologia evolve. I valori con cui lavoriamo restano. ⚙️📐 #metalwork #lamiera #lasercut',
-          likes: 124,
-          likedByMe: true,
-          timeAgo: '3 DAYS AGO'
-        },
-        {
-          id: 'post-3',
-          username: 'lasertech_schio',
-          userAvatar: getPlaceholderAvatar(),
-          location: 'HQ Production',
-          images: [
-            createGradientPlaceholder('ALDO', 'Aldo - Industrial Tag Team Lead', '#d35400', '#2c3e50')
-          ],
-          caption: 'Incontra il nostro team: Aldo, responsabile reparto taglio laser. Qualità e cura dei dettagli. #staff #meettheteam',
-          likes: 76,
-          likedByMe: false,
-          timeAgo: '4 DAYS AGO'
-        },
-        {
-          id: 'post-4',
-          username: 'lasertech_schio',
-          userAvatar: getPlaceholderAvatar(),
-          location: 'Schio Factory',
-          images: [
-            createGradientPlaceholder('MARIANNA', 'Marianna - Customer Operations Manager', '#e67e22', '#34495e')
-          ],
-          caption: 'Il motore dei nostri progetti: Marianna. Dialogo e precisione al servizio delle vostre specifiche. #team #operations #customercare',
-          likes: 85,
-          likedByMe: false,
-          timeAgo: '1 WEEK AGO'
-        },
-        {
-          id: 'post-5',
-          username: 'lasertech_schio',
-          userAvatar: getPlaceholderAvatar(),
-          location: 'Schio HQ',
-          images: [
-            createGradientPlaceholder('IDEE E PERSONE', 'Idee. Tecnologia. Persone.', '#111111', '#444444')
-          ],
-          caption: 'IDEE, TECNOLOGIA, PERSONE. Tre elementi uniti per dare vita a lavorazioni su misura ad alto valore tecnologico. 🛠️📐✨',
-          likes: 62,
-          likedByMe: false,
-          timeAgo: '2 WEEKS AGO'
-        }
-      ];
-      saveData();
-    }
+    const result = initializeProjects(localStorage, getPlaceholderAvatar());
+    projects = result.projects;
+    activeProjectId = result.activeProjectId;
+    loadActiveProjectIntoState();
+  }
+
+  function loadActiveProjectIntoState() {
+    const project = findProject(projects, activeProjectId);
+    profile = project.profile;
+    posts = project.posts;
+    userAvatar = project.avatar || getPlaceholderAvatar();
   }
 
   function saveData() {
     try {
-      localStorage.setItem('ig_profile_posts', JSON.stringify(posts));
-      localStorage.setItem('ig_profile_avatar', userAvatar);
-      localStorage.setItem('ig_profile_info', JSON.stringify(profile));
+      projects = updateProjectData(projects, activeProjectId, { profile, posts, avatar: userAvatar });
+      saveProjectsToStorage(localStorage, projects, activeProjectId);
     } catch (e) {
       console.warn('LocalStorage quota limit reached, saving failed:', e);
       // Soft fail: notify console but do not crash the app
@@ -458,23 +348,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Resets only the ACTIVE project's profile/posts/avatar, not other
+    // projects and not the ig_projects/ig_active_project_id keys themselves
+    // (see Task 5 note: this replaces the old localStorage.clear() behavior,
+    // which would have wiped every saved project).
     clearFeedBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to reset the simulator? Your custom posts and bio settings will be cleared.')) {
-        localStorage.clear();
+      if (confirm('Are you sure you want to reset this project? Its custom posts and bio settings will be cleared.')) {
+        profile = createBlankProfile();
         posts = [];
         currentPostImages = [];
         previewContainer.innerHTML = '';
         userAvatar = getPlaceholderAvatar();
-        profile = {
-          username: 'lasertech_schio',
-          displayName: 'LASER TECH SCHIO',
-          category: 'Impresa industriale',
-          bioText: `Laser Tech Schio è leader nel taglio laser e lavorazione lamiera su specifica del cliente.\n#acciaioinox`,
-          bioLink: 'www.lasertech-srl.it/',
-          followersCount: '293',
-          followingCount: '316'
-        };
-        loadData();
+        saveData();
         syncSidebarToProfileForm();
         updateProfileMockup();
         renderGrid();
@@ -508,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="remove-img" data-index="${index}">&times;</button>
         <span class="img-index">${index + 1}</span>
       `;
-      
+
       thumb.querySelector('.remove-img').addEventListener('click', (e) => {
         const idx = parseInt(e.target.getAttribute('data-index'));
         currentPostImages.splice(idx, 1);
@@ -522,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Dynamic Island popup action
   function triggerDynamicIslandAnimation() {
     dynamicIsland.classList.add('expanded');
-    
+
     dynamicIsland.innerHTML = `
       <div class="dynamic-island-content">
         <img class="island-avatar" src="${userAvatar}" alt="">
@@ -561,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const cell = document.createElement('div');
       cell.className = 'grid-cell';
       cell.dataset.postId = post.id;
-      
+
       // Thumbnail image
       cell.innerHTML = `<img src="${post.images[0]}" alt="Post preview">`;
 
@@ -588,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Build full Instagram Post detail inside the popup modal
   function openPostOverlay(post) {
     overlayPostBody.innerHTML = '';
-    
+
     const postCard = document.createElement('div');
     postCard.className = 'ig-post';
 
@@ -707,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = postEl.querySelectorAll('.post-carousel-dot');
     const likeBtn = postEl.querySelector('.btn-like');
     const doubleTapHeart = postEl.querySelector('.double-tap-heart');
-    
+
     let currentIndex = 0;
     const totalImages = postData.images.length;
 
@@ -723,12 +608,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const currentTime = new Date().getTime();
       const tapDelay = currentTime - lastTap;
-      
+
       if (tapDelay < 300 && tapDelay > 0) {
         doubleTapHeart.classList.remove('animate');
         void doubleTapHeart.offsetWidth; // Reflow reset
         doubleTapHeart.classList.add('animate');
-        
+
         if (!postData.likedByMe) {
           toggleLike(postData, likeBtn, postEl);
         }
@@ -740,10 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (totalImages > 1) {
       const updateSlider = () => {
         mediaWrapper.style.transform = `translateX(-${currentIndex * (100 / totalImages)}%)`;
-        
+
         if (prevBtn) prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
         if (nextBtn) nextBtn.style.display = currentIndex === totalImages - 1 ? 'none' : 'flex';
-        
+
         dots.forEach((dot, idx) => {
           if (idx === currentIndex) {
             dot.classList.add('active');
@@ -784,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDragging) return;
         const currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
         diffX = currentX - startX;
-        
+
         // elastic pull at boundaries
         if ((currentIndex === 0 && diffX > 0) || (currentIndex === totalImages - 1 && diffX < 0)) {
           diffX = diffX * 0.3;
@@ -800,15 +685,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDragging) return;
         isDragging = false;
         mediaWrapper.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        
+
         const containerWidth = mediaContainer.offsetWidth;
-        
+
         if (diffX < -containerWidth * 0.2 && currentIndex < totalImages - 1) {
           currentIndex++;
         } else if (diffX > containerWidth * 0.2 && currentIndex > 0) {
           currentIndex--;
         }
-        
+
         diffX = 0;
         updateSlider();
       };
@@ -826,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Like event toggler
   function toggleLike(postData, likeBtn, postEl) {
     const likesCountEl = postEl.querySelector('.post-likes');
-    
+
     if (postData.likedByMe) {
       postData.likedByMe = false;
       postData.likes = Math.max(0, postData.likes - 1);
@@ -844,7 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Post manager inside Right Sidebar
   function renderManageList() {
     manageList.innerHTML = '';
-    
+
     if (posts.length === 0) {
       manageList.innerHTML = '<div class="empty-feed-text">Profile grid is empty.</div>';
       return;
@@ -911,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          
+
           if (width > maxDim || height > maxDim) {
             if (width > height) {
               height = Math.round((height * maxDim) / width);
@@ -921,13 +806,13 @@ document.addEventListener('DOMContentLoaded', () => {
               height = maxDim;
             }
           }
-          
+
           canvas.width = width;
           canvas.height = height;
-          
+
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           // Export as compressed JPEG format (0.8 quality = ~20-50x reduction in size)
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
           resolve(compressedDataUrl);
