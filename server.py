@@ -81,7 +81,21 @@ class ReusableTCPServer(socketserver.TCPServer):
     allow_reuse_address = True
 
 def run():
-    with ReusableTCPServer(("", PORT), SimulatorRequestHandler) as httpd:
+    global PORT
+    httpd = None
+    for p in range(PORT, PORT + 20):
+        try:
+            httpd = ReusableTCPServer(("", p), SimulatorRequestHandler)
+            PORT = p
+            break
+        except OSError:
+            continue
+
+    if not httpd:
+        print(f"Errore: impossibile trovare una porta libera a partire da {PORT}")
+        return
+
+    with httpd:
         print("=" * 60)
         print(" 📸 Instagram Feed Simulator - Local Server")
         print("=" * 60)
