@@ -111,8 +111,23 @@ export function loadActiveProjectId(store) {
 }
 
 export function saveProjectsToStorage(store, projects, activeProjectId) {
-  store.setItem(PROJECTS_KEY, JSON.stringify(projects));
-  store.setItem(ACTIVE_PROJECT_KEY, activeProjectId);
+  try {
+    store.setItem(PROJECTS_KEY, JSON.stringify(projects));
+    store.setItem(ACTIVE_PROJECT_KEY, activeProjectId);
+  } catch (err) {
+    console.warn('LocalStorage quota exceeded or write failed:', err);
+    try {
+      if (typeof store.removeItem === 'function') {
+        store.removeItem(LEGACY_KEYS.posts);
+        store.removeItem(LEGACY_KEYS.profile);
+        store.removeItem(LEGACY_KEYS.avatar);
+      }
+      store.setItem(PROJECTS_KEY, JSON.stringify(projects));
+      store.setItem(ACTIVE_PROJECT_KEY, activeProjectId);
+    } catch (e2) {
+      console.warn('Storage quota still exceeded after clearing legacy keys:', e2);
+    }
+  }
 }
 
 export function initializeProjects(store, defaultAvatar) {
@@ -124,6 +139,13 @@ export function initializeProjects(store, defaultAvatar) {
       ? migrateLegacyProject(legacy.profile, legacy.posts, legacy.avatar)
       : createProject('Nuovo progetto', createBlankProfile(), [], defaultAvatar);
     projects = [project];
+    try {
+      if (typeof store.removeItem === 'function') {
+        store.removeItem(LEGACY_KEYS.posts);
+        store.removeItem(LEGACY_KEYS.profile);
+        store.removeItem(LEGACY_KEYS.avatar);
+      }
+    } catch (e) {}
     saveProjectsToStorage(store, projects, project.id);
     return { projects, activeProjectId: project.id };
   }

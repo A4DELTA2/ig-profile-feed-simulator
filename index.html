@@ -74,6 +74,51 @@
         </div>
       </section>
 
+      <!-- Instagram Live Sync Panel -->
+      <section class="panel-card sync-panel-card">
+        <h2 class="section-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          Instagram Sync
+        </h2>
+
+        <div class="form-group">
+          <label for="sync-username">Profilo Ufficiale</label>
+          <div class="sync-input-group">
+            <span class="sync-at-prefix">@</span>
+            <input type="text" id="sync-username" class="form-input sync-username-input" value="lasertech_schio" placeholder="lasertech_schio o sossansrl">
+          </div>
+          <div class="sync-presets-row">
+            <button type="button" class="sync-preset-chip active" data-username="lasertech_schio">Laser Tech</button>
+            <button type="button" class="sync-preset-chip" data-username="sossansrl">Sossan Srl</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="sync-checkbox-label">
+            <input type="checkbox" id="sync-replace-posts" checked>
+            <span>Sostituisci feed attuale</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn-primary sync-action-btn" id="btn-sync-instagram">
+          <svg class="sync-btn-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span id="sync-btn-label">Sincronizza Post Ufficiali</span>
+        </button>
+
+        <div class="sync-status" id="sync-status" style="display: none;">
+          <div class="sync-spinner" id="sync-spinner"></div>
+          <span id="sync-status-text">Connessione a Instagram...</span>
+        </div>
+      </section>
+
       <!-- Profile Customization Panel -->
       <section class="panel-card">
         <h2 class="section-title">
@@ -192,21 +237,6 @@
         <!-- iPhone 16 Pro Max Body -->
         <div class="iphone-frame" id="iphone-frame">
           
-          <!-- Side Buttons -->
-          <div class="phone-btn btn-action"></div>
-          <div class="phone-btn btn-vol-up"></div>
-          <div class="phone-btn btn-vol-down"></div>
-          <div class="phone-btn btn-power"></div>
-          <div class="phone-btn btn-camera-control"></div>
-
-          <!-- Phone glare shine reflection screen -->
-          <div class="phone-glare"></div>
-
-          <!-- Dynamic Island -->
-          <div class="dynamic-island-container">
-            <div class="dynamic-island" id="dynamic-island"></div>
-          </div>
-
           <!-- Screen clipping frame -->
           <div class="iphone-screen">
             
@@ -421,6 +451,14 @@
             <div class="ios-home-indicator"></div>
 
           </div>
+
+          <!-- Realistic Device Mockup Frame Overlay -->
+          <img src="assets/device-mockup-frame.png" class="phone-mockup-overlay" alt="iPhone Mockup Frame" draggable="false" />
+
+          <!-- Dynamic Island Interactive Layer -->
+          <div class="dynamic-island-container">
+            <div class="dynamic-island" id="dynamic-island"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -544,6 +582,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- JS Code execution -->
-  <script src="js/app.js" type="module"></script>
+  <script src="js/app.js?v=1.3" type="module"></script>
 </body>
 </html>

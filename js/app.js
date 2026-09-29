@@ -94,6 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnImportJson = document.getElementById('btn-import-json');
   const importJsonInput = document.getElementById('import-json-input');
 
+  // Instagram Live Sync Elements
+  const inputSyncUsername = document.getElementById('sync-username');
+  const chkSyncReplace = document.getElementById('sync-replace-posts');
+  const btnSyncInstagram = document.getElementById('btn-sync-instagram');
+  const syncBtnLabel = document.getElementById('sync-btn-label');
+  const syncStatus = document.getElementById('sync-status');
+  const syncStatusText = document.getElementById('sync-status-text');
+  const syncSpinner = document.getElementById('sync-spinner');
+
   // --- INITIALIZATION ---
   initClock();
   loadData();
@@ -135,6 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
     inputFollowers.value = profile.followersCount;
     inputFollowing.value = profile.followingCount;
     avatarPreview.src = userAvatar;
+
+    // Keep sync input & preset chips in sync with current profile
+    if (inputSyncUsername && profile.username) {
+      inputSyncUsername.value = profile.username;
+      const currentU = profile.username.toLowerCase();
+      document.querySelectorAll('.sync-preset-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.username.toLowerCase() === currentU);
+      });
+    }
   }
 
   // Update text label elements inside mock screen
@@ -186,16 +204,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load the active project's data from the multi-project store
   function loadData() {
-    const result = initializeProjects(localStorage, getPlaceholderAvatar());
-    projects = result.projects;
-    activeProjectId = result.activeProjectId;
+    try {
+      const result = initializeProjects(localStorage, getPlaceholderAvatar());
+      projects = result.projects || [];
+      activeProjectId = result.activeProjectId;
+    } catch (err) {
+      console.warn('Fallback initializing projects due to storage error:', err);
+      const fallbackProject = createProject('lasertech_schio', createBlankProfile(), [], getPlaceholderAvatar());
+      projects = [fallbackProject];
+      activeProjectId = fallbackProject.id;
+    }
     loadActiveProjectIntoState();
   }
 
   function loadActiveProjectIntoState() {
-    const project = findProject(projects, activeProjectId);
-    profile = project.profile;
-    posts = project.posts;
+    let project = findProject(projects, activeProjectId);
+    if (!project) {
+      project = (projects && projects[0]) || createProject('lasertech_schio', createBlankProfile(), [], getPlaceholderAvatar());
+      activeProjectId = project.id;
+    }
+    profile = project.profile || createBlankProfile();
+    posts = Array.isArray(project.posts) ? project.posts : [];
     userAvatar = project.avatar || getPlaceholderAvatar();
   }
 
@@ -527,6 +556,124 @@ document.addEventListener('DOMContentLoaded', () => {
       } finally {
         importJsonInput.value = '';
       }
+    });
+
+    // --- 7. Instagram Live Sync ---
+    btnSyncInstagram?.addEventListener('click', async () => {
+      const username = (inputSyncUsername.value || 'lasertech_schio').trim().replace(/^@/, '');
+      const shouldReplace = chkSyncReplace.checked;
+
+      if (!username) {
+        alert('Inserisci un username Instagram valido.');
+        return;
+      }
+
+      // UI Loading state
+      btnSyncInstagram.disabled = true;
+      syncSpinner.style.display = 'block';
+      syncStatus.className = 'sync-status';
+      syncStatus.style.display = 'flex';
+      syncStatusText.textContent = `Scaricamento post di @${username}...`;
+      syncBtnLabel.textContent = 'Sincronizzazione...';
+
+      try {
+        const response = await fetch('/api/sync-instagram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, limit: 12 })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Errore server (${response.status})`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error || 'Impossibile estrarre i dati dal profilo.');
+        }
+
+        // Apply profile updates
+        if (data.profile) {
+          profile.username = data.profile.username || profile.username;
+          if (data.profile.displayName) profile.displayName = data.profile.displayName;
+          if (data.profile.category) profile.category = data.profile.category;
+          if (data.profile.bioText) profile.bioText = data.profile.bioText;
+          if (data.profile.bioLink) profile.bioLink = data.profile.bioLink;
+          if (data.profile.followersCount) profile.followersCount = data.profile.followersCount;
+          if (data.profile.followingCount) profile.followingCount = data.profile.followingCount;
+        }
+
+        if (data.avatar) {
+          userAvatar = data.avatar;
+        }
+
+        // Apply posts
+        const fetchedPosts = Array.isArray(data.posts) ? data.posts : [];
+        if (shouldReplace) {
+          posts = fetchedPosts;
+        } else {
+          // Append new posts avoiding duplicate IDs
+          const existingIds = new Set(posts.map(p => p.id));
+          const newUnique = fetchedPosts.filter(p => !existingIds.has(p.id));
+          posts = [...newUnique, ...posts];
+        }
+
+        // Save & re-render
+        saveData();
+        syncSidebarToProfileForm();
+        updateProfileMockup();
+        renderGrid();
+        renderManageList();
+        triggerDynamicIslandAnimation();
+
+        // Update project name to match synced account if previous name was generic or lasertech
+        const currentProject = findProject(projects, activeProjectId);
+        if (currentProject && (currentProject.name === 'Nuovo progetto' || currentProject.name === 'lasertech_schio' || currentProject.name === 'sossansrl')) {
+          projects = renameProject(projects, activeProjectId, username);
+          saveData();
+          renderProjectSelector();
+        }
+
+        // Success UI state
+        syncSpinner.style.display = 'none';
+        syncStatus.className = 'sync-status success';
+        syncStatusText.textContent = `✅ Sincronizzati ${fetchedPosts.length} post da @${username}!`;
+      } catch (err) {
+        console.error('Errore sincronizzazione Instagram:', err);
+        syncSpinner.style.display = 'none';
+        syncStatus.className = 'sync-status error';
+        
+        // If fetch failed completely (e.g. server.py is not running)
+        if (err.name === 'TypeError' || (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')))) {
+          syncStatusText.innerHTML = `⚠️ Server non raggiungibile. Avvia con <code>npm start</code> o <code>python3 server.py</code>`;
+        } else {
+          syncStatusText.textContent = `❌ ${err.message}`;
+        }
+      } finally {
+        btnSyncInstagram.disabled = false;
+        syncBtnLabel.textContent = 'Sincronizza Post Ufficiali';
+      }
+    });
+
+    // Preset chips (Laser Tech, Sossan Srl)
+    const presetChips = document.querySelectorAll('.sync-preset-chip');
+    presetChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        presetChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        if (inputSyncUsername) {
+          inputSyncUsername.value = chip.dataset.username;
+        }
+      });
+    });
+
+    inputSyncUsername?.addEventListener('input', () => {
+      const val = inputSyncUsername.value.trim().replace(/^@/, '').toLowerCase();
+      presetChips.forEach(c => {
+        c.classList.toggle('active', c.dataset.username.toLowerCase() === val);
+      });
     });
   }
 

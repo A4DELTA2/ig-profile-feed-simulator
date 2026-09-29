@@ -17,6 +17,7 @@ A premium, interactive web-based simulator designed to create, preview, and cura
   - Interactive swiping: drag/swipe horizontally (with touch or mouse) or click the navigation arrows to glide through carousel photos.
   - Active dot indicators mapping the slide progress.
 - **Double-Tap to Like**: Double-click any photo in the detail view to trigger a heart animation and toggle the post's like state.
+- **Instagram Live Sync**: One-click in-app synchronization to automatically fetch official posts, multi-photo carousels, captions, avatar, and follower statistics from `@lasertech_schio` (or any public Instagram profile).
 - **Client-Side Image Compression**: An asynchronous HTML5 Canvas compressor (`resizeAndCompress`) scales uploaded photos to a maximum of 1080px (Instagram standard) and profile avatars to 256px, converting them to compressed JPEGs before saving. This reduces raw image weights by ~95%, bypassing browser LocalStorage limits and preventing crash issues.
 - **Data Persistence**: Automatically stores custom posts, avatar changes, and bio adjustments in your browser's LocalStorage.
 
@@ -27,29 +28,34 @@ A premium, interactive web-based simulator designed to create, preview, and cura
 - **Structure**: Semantic HTML5.
 - **Styling**: Vanilla CSS3 (CSS Custom Properties, CSS Grid, custom scrollbars, active slide animations).
 - **Logic**: Vanilla ES6 JavaScript (Touch/mouse drag event listeners, HTML5 Canvas API, LocalStorage).
+- **Backend & Sync**: Lightweight Python 3 server (`server.py` and `ig_sync.py`) for static serving and live Instagram fetching with image optimization.
 - **Icons**: Inline scalable SVGs.
 
 ---
 
 ## 🚀 How to Run Locally
 
-You can run this application without compiling or installing any dependencies:
+You can run this application without compiling or installing external packages:
 
-1. **Clone the repository**:
+1. **Start the local server** (with Live Sync support):
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   python3 server.py 8080
+   ```
+   *Or using npm:*
+   ```bash
+   npm start
    ```
 
-2. **Start a local HTTP server**:
-   If you have Python installed, you can start a server directly from your terminal:
-   ```bash
-   python3 -m http.server 8080
-   ```
-   *Or with Node.js:*
-   ```bash
-   npx serve .
-   ```
-
-3. **Open the browser**:
+2. **Open the browser**:
    Navigate to [http://localhost:8080](http://localhost:8080) to interact with the simulator.
+
+3. **Sync from Instagram**:
+   Click the **"Sincronizza Post Ufficiali"** button in the left sidebar to automatically fetch the official feed from `@lasertech_schio` into the iPhone mockup!
+
+4. *(Optional) CLI Standalone Sync*:
+   You can also sync directly from terminal:
+   ```bash
+   python3 sync_lasertech.py --limit 12
+   ```
+   This generates a `lasertech_schio_project.json` file that you can import with the "Import Project" button.
+

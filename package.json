@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "python3 server.py 8080",
+    "sync": "python3 sync_lasertech.py",
     "test": "node --test tests/storage.test.js tests/project-io.test.js tests/reorder.test.js"
   }
 }
